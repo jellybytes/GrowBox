@@ -49,15 +49,10 @@ https://github.com/adafruit/Adafruit_BME280_Library/blob/master/Adafruit_BME280.
  ***************************************************************************
 ****************************************************************************/
 
-#include <stdio.h>
-#include <errno.h>
-#include <stdint.h>
-#include <time.h>
-#include <math.h>
-#include <wiringPiI2C.h>
 #include "bme280.h"
 
-int main() {
+
+int test_bme280() {
 
   int fd = wiringPiI2CSetup(BME280_ADDRESS);
   if(fd < 0) {
