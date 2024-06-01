@@ -1,95 +1,37 @@
-/***************************************************************************
-Modified BSD License
-====================
-
-Copyright © 2016, Andrei Vainik
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright
-   notice, this list of conditions and the following disclaimer.
-2. Redistributions in binary form must reproduce the above copyright
-   notice, this list of conditions and the following disclaimer in the
-   documentation and/or other materials provided with the distribution.
-3. Neither the name of the organization nor the
-   names of its contributors may be used to endorse or promote products
-   derived from this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND
-ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL COPYRIGHT HOLDER BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-This piece of code was combined from several sources
-https://github.com/adafruit/Adafruit_BME280_Library
-https://cdn-shop.adafruit.com/datasheets/BST-BME280_DS001-10.pdf
-https://projects.drogon.net/raspberry-pi/wiringpi/i2c-library/
-
-Compensation functions and altitude function originally from:
-https://github.com/adafruit/Adafruit_BME280_Library/blob/master/Adafruit_BME280.cpp
-***************************************************************************
-  This is a library for the BME280 humidity, temperature & pressure sensor
-  Designed specifically to work with the Adafruit BME280 Breakout
-  ----> http://www.adafruit.com/products/2650
-  These sensors use I2C or SPI to communicate, 2 or 4 pins are required
-  to interface.
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit andopen-source hardware by purchasing products
-  from Adafruit!
-  Written by Limor Fried & Kevin Townsend for Adafruit Industries.
-  BSD license, all text above must be included in any redistribution
- ***************************************************************************
-****************************************************************************/
 
 #include "bme280.h"
 
+void readCalibrationData(int fd, bme280_calib_data *cal);
+int32_t getTemperatureCalibration(bme280_calib_data *cal, int32_t adc_T);
+float compensateTemperature(int32_t t_fine);
+float compensatePressure(int32_t adc_P, bme280_calib_data *cal, int32_t t_fine);
+float compensateHumidity(int32_t adc_H, bme280_calib_data *cal, int32_t t_fine);
+void getRawData(int fd, bme280_raw_data *raw);
+float getAltitude(float pressure);
 
-int test_bme280() {
+int setupBME280(BME280 *bme280)
+{
+  readCalibrationData(bme280->fd, &bme280->cal);
 
-  int fd = wiringPiI2CSetup(BME280_ADDRESS);
-  if(fd < 0) {
-    printf("Device not found");
-    return -1;
-  }
-
-  bme280_calib_data cal;
-  readCalibrationData(fd, &cal);
-
-  wiringPiI2CWriteReg8(fd, 0xf2, 0x01);   // humidity oversampling x 1
-  wiringPiI2CWriteReg8(fd, 0xf4, 0x25);   // pressure and temperature oversampling x 1, mode normal
-
-  bme280_raw_data raw;
-  getRawData(fd, &raw);
-
-  int32_t t_fine = getTemperatureCalibration(&cal, raw.temperature);
-  float t = compensateTemperature(t_fine); // C
-  float p = compensatePressure(raw.pressure, &cal, t_fine) / 100; // hPa
-  float h = compensateHumidity(raw.humidity, &cal, t_fine);       // %
-  float a = getAltitude(p);                         // meters
-
-  printf("{\"sensor\":\"bme280\", \"humidity\":%.2f, \"pressure\":%.2f,"
-    " \"temperature\":%.2f, \"altitude\":%.2f, \"timestamp\":%d}\n",
-    h, p, t, a, (int)time(NULL));
-
+  wiringPiI2CWriteReg8(bme280->fd, 0xf2, 0x01);   // humidity oversampling x 1
+  wiringPiI2CWriteReg8(bme280->fd, 0xf4, 0x25);   // pressure and temperature oversampling x 1, mode normal
   return 0;
 }
 
+void readBME280(BME280 *bme280)
+{
+  getRawData(bme280->fd, &bme280->raw);
+
+  int32_t t_fine = getTemperatureCalibration(&bme280->cal, bme280->raw.temperature);
+  bme280->temperature = compensateTemperature(t_fine); // C
+  bme280->pressure = compensatePressure(bme280->raw.pressure, &bme280->cal, t_fine) / 100; // hPa
+  bme280->humidity = compensateHumidity(bme280->raw.humidity, &bme280->cal, t_fine);       // %
+  // float a = getAltitude(p);                         // meters
+}
+
 int32_t getTemperatureCalibration(bme280_calib_data *cal, int32_t adc_T) {
-  int32_t var1  = ((((adc_T>>3) - ((int32_t)cal->dig_T1 <<1))) *
-     ((int32_t)cal->dig_T2)) >> 11;
-
-  int32_t var2  = (((((adc_T>>4) - ((int32_t)cal->dig_T1)) *
-       ((adc_T>>4) - ((int32_t)cal->dig_T1))) >> 12) *
-     ((int32_t)cal->dig_T3)) >> 14;
-
+  int32_t var1  = ((((adc_T>>3) - ((int32_t)cal->dig_T1 <<1))) * ((int32_t)cal->dig_T2)) >> 11;
+  int32_t var2  = (((((adc_T>>4) - ((int32_t)cal->dig_T1)) * ((adc_T>>4) - ((int32_t)cal->dig_T1))) >> 12) * ((int32_t)cal->dig_T3)) >> 14;
   return var1 + var2;
 }
 

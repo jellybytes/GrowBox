@@ -94,14 +94,18 @@ typedef struct
 
 } bme280_raw_data;
 
+struct _BME280
+{
+  int fd;
+  bme280_calib_data cal;
+  bme280_raw_data raw;
+  float temperature;
+  float humidity;
+  float pressure;
+};
+typedef struct _BME280 BME280;
 
-void readCalibrationData(int fd, bme280_calib_data *cal);
-int32_t getTemperatureCalibration(bme280_calib_data *cal, int32_t adc_T);
-float compensateTemperature(int32_t t_fine);
-float compensatePressure(int32_t adc_P, bme280_calib_data *cal, int32_t t_fine);
-float compensateHumidity(int32_t adc_H, bme280_calib_data *cal, int32_t t_fine);
-void getRawData(int fd, bme280_raw_data *raw);
-float getAltitude(float pressure);
-int test_bme280();
+int setupBME280(BME280 *bme280);
+void readBME280(BME280 *bme280);
 
 #endif

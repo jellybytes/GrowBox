@@ -6,6 +6,7 @@ EXE := $(BIN_DIR)/growBoxCtrl
 SRC := $(wildcard $(SRC_DIR)/*.c)
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
+CC := gcc
 CPPFLAGS := -Iinclude -MMD -MP
 CFLAGS   := -Wall -Wextra
 # LDFLAGS  := -Llib
