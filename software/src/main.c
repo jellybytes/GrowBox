@@ -19,11 +19,11 @@ const int PWM_1 = 23;
 
 int main(int argc, char ** argv)
 {
-	// printf("argv[1]: %s", argv[1]);
-	// long dc = strtol(argv[1], NULL, 10);
+	printf("argv[1]: %s", argv[1]);
+	long dc = strtol(argv[1], NULL, 10);
 	printBME280();
 	testOLED();
-	// startPWM((int) dc);
+	startPWM((int) dc);
 
     return 0;
 }
