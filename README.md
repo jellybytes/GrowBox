@@ -14,10 +14,10 @@ i2C Adresses 0x76 / 0x77 -> connect solder bridge + cut default bridge!!
 default baudrate 100Kbps -> increase with `gpio load i2c 400` to 400Kbps
 
 # Fan Speed Control
-- `gpio readall` to print wPi <-> BMC pin mapping
+- `gpio readall` to print wPi <-> BCM pin mapping
 
 **PWM Pins**
-| BMC | PWM |
+| BCM | PWM |
 |--------|------|
 | GPIO12 | PWM0 |
 | GPIO18 | PWM0 |
