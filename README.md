@@ -19,12 +19,17 @@ default baudrate 100Kbps -> increase with `gpio load i2c 400` to 400Kbps
 **PWM Pins**
 | BCM | PWM |
 |--------|------|
-| GPIO12 | PWM0 |
-| GPIO18 | PWM0 |
-| GPIO13 | PWM1 |
-| GPIO19 | PWM1 |
+| 12 | PWM0 |
+| 18 | PWM0 |
+| 13 | PWM1 |
+| 19 | PWM1 |
 
-Use BCM pins `12` and `13` -> wPi pins `26` and `23`
+Use BCM pins `12` and `13` -> wPi pins `GPIO26` and `GPIO23`
 
 # Display
 SSD1306 based 128x64 pixel OLED screen. I2c address `0x3c`
+
+# Button / Light Control
+
+GPIO21 (wPi) -> BCM 5
+GPIO22 (wPi) -> BCM 6
