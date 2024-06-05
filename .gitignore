@@ -1,3 +1,6 @@
 *.o
 *.d
+
+hardware/CarbonFilter/OldVersions/*
+hardware/IntakeFilter/OldVersions/*
 hardware/MasterCtrlCase/OldVersions/*
