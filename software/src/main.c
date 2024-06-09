@@ -5,48 +5,57 @@
 #include "ssd1306_i2c.h"
 #include "bme280.h"
 
-#define BME280_IN_ADDR 	0x76
-#define BME280_OUT_ADDR 0x77
-
-void printBME280();
-void testOLED();
-void startPWM(int dc);
-
+// temperature sensors
+#define BME280_IN_ADDR 	0x77
+#define BME280_OUT_ADDR 0x76
 BME280 bme280_in = {0};
 BME280 bme280_out = {0};
+
+// motors
 const int PWM_0 = 26;
 const int PWM_1 = 23;
 
+void printBME280();
+void testOLED();
+void startPWM(int dc1, int dc2);
+int init_devices();
+
 int main(int argc, char ** argv)
 {
-	printf("argv[1]: %s", argv[1]);
-	long dc = strtol(argv[1], NULL, 10);
+	long dc1 = strtol(argv[1], NULL, 10);
+	long dc2 = strtol(argv[2], NULL, 10);
+
 	printBME280();
 	testOLED();
-	startPWM((int) dc);
+	init_devices();
+	startPWM((int) dc1, (int) dc2);
 
     return 0;
 }
 
-void startPWM(int dc)
+int init_devices()
 {
 	// initialise wiringPi with wPi numbering
 	if (wiringPiSetup() == -1) 
 		exit(1);
 
+	// motor control PWM setup
 	// fixed period for all Duty cycles
 	pinMode(PWM_0, PWM_OUTPUT);
 	pinMode(PWM_1, PWM_OUTPUT);
 
 	pwmSetMode(PWM_MODE_MS);
-	// init PWM pins
 	// clock divider 19.2 MHz / x
 	// pwmFreq = 19.2e6 / clkDiv / range
 	pwmSetClock(5);
 	pwmSetRange(192);
+}
+
+void startPWM(int dc1, int dc2)
+{
 	// set PWM
-	pwmWrite(PWM_0, 96);
-	pwmWrite(PWM_1, dc);
+	pwmWrite(PWM_0, dc1);
+	pwmWrite(PWM_1, dc2);
 }
 
 void testOLED()
@@ -96,7 +105,7 @@ void printBME280()
     setupBME280(&bme280_out);
     readBME280(&bme280_out);
 
-    printf("temperature: %f\n", bme280_out.temperature);
-    printf("humidity: %f\n", bme280_out.humidity);
-    printf("pressure: %f\n", bme280_out.pressure);
+    printf("temperature: %.2f °C\n", bme280_out.temperature);
+    printf("humidity: %.0f %%\n", bme280_out.humidity);
+    printf("pressure: %.0f hPa\n", bme280_out.pressure);
 }
