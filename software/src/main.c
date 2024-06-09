@@ -2,12 +2,15 @@
 #include <stdlib.h>
 
 #include <wiringPi.h>
+
 #include "ssd1306_i2c.h"
 #include "bme280.h"
+#include "mqtt_utils.h"
 
 // temperature sensors
 #define BME280_IN_ADDR 	0x77
 #define BME280_OUT_ADDR 0x76
+
 BME280 bme280_in = {0};
 BME280 bme280_out = {0};
 
@@ -22,13 +25,15 @@ int init_devices();
 
 int main(int argc, char ** argv)
 {
-	long dc1 = strtol(argv[1], NULL, 10);
-	long dc2 = strtol(argv[2], NULL, 10);
+	test_mqtt(argv[1], argv[2]);
 
-	printBME280();
-	testOLED();
-	init_devices();
-	startPWM((int) dc1, (int) dc2);
+	// long dc1 = strtol(argv[1], NULL, 10);
+	// long dc2 = strtol(argv[2], NULL, 10);
+
+	// printBME280();
+	// testOLED();
+	// init_devices();
+	// startPWM((int) dc1, (int) dc2);
 
     return 0;
 }
@@ -78,7 +83,6 @@ void testOLED()
 	ssd1306_drawString(print_buf2);
 	ssd1306_display(); // needed
 }
-
 
 void printBME280()
 {

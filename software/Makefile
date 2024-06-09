@@ -11,7 +11,7 @@ EXE = $(BIN_DIR)/growBoxCtrl
 SRC	= $(wildcard src/*.c)
 INC = $(wildcard include/*.h)
 OBJ = $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(SRC)))
-LDLIBS = -lwiringPi -lm
+LDLIBS = -lwiringPi -lm -lmosquitto
 CFLAGS = -Iinclude
 
 # libs
@@ -27,13 +27,15 @@ INC_LIB_TWO = $(wildcard $(LIB_TWO)/include/*.h)
 OBJ_LIB_TWO = $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(SRC_LIB_TWO)))
 CFLAGS += -I$(sort $(dir $(INC_LIB_TWO)))
 
-OBJECTS = $(OBJ) $(OBJ_LIB_ONE) $(OBJ_LIB_TWO)
+LIB_THREE = lib/mqtt_utils
+SRC_LIB_THREE = $(wildcard $(LIB_THREE)/src/*.c)
+INC_LIB_THREE = $(wildcard $(LIB_THREE)/include/*.h)
+OBJ_LIB_THREE = $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(SRC_LIB_THREE)))
+CFLAGS += -I$(sort $(dir $(INC_LIB_THREE)))
+
+OBJECTS = $(OBJ) $(OBJ_LIB_ONE) $(OBJ_LIB_TWO) $(OBJ_LIB_THREE)
 
 .PHONY: all clean objs
-
-# $(info INC: $(INC_LIB_ONE))
-# $(info CF: $(CFLAGS))
-# $(info LIBS: $(LDLIBS))
 
 all: $(EXE)
 
@@ -46,6 +48,9 @@ $(OBJ_LIB_ONE): $(SRC_LIB_ONE) $(INC_LIB_ONE) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_LIB_TWO): $(SRC_LIB_TWO) $(INC_LIB_TWO) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_LIB_THREE): $(SRC_LIB_THREE) $(INC_LIB_THREE) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ): $(SRC) $(INC) | $(OBJ_DIR)
