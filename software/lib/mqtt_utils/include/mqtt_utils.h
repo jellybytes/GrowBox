@@ -7,6 +7,6 @@
 #include <string.h>
 #include <unistd.h>
 
-int test_mqtt();
+int init_mqtt(struct mosquitto *mosq);
 
 #endif // H_MQTT_UTILS

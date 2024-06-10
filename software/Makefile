@@ -12,7 +12,7 @@ SRC	= $(wildcard src/*.c)
 INC = $(wildcard include/*.h)
 OBJ = $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(SRC)))
 LDLIBS = -lwiringPi -lm -lmosquitto
-CFLAGS = -Iinclude
+CFLAGS = -Wall -Wextra -Iinclude
 
 # libs
 LIB_ONE = lib/bme280
