@@ -42,13 +42,19 @@ void on_connect(struct mosquitto *mosq, void *obj, int reason_code)
 		mosquitto_disconnect(mosq);
 	}
 
-	int rc = mosquitto_subscribe(mosq, NULL, "bedroom_fan/speed/percentage", 1);
+	int rc = mosquitto_subscribe(mosq, NULL, "gb_ex_fan/speed/percentage", 1);
 	if(rc != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error subscribing: %s\n", mosquitto_strerror(rc));
 		mosquitto_disconnect(mosq);
 	}
 
-	rc = mosquitto_subscribe(mosq, NULL, "bedroom_fan/on/set", 1);
+	rc = mosquitto_subscribe(mosq, NULL, "gb_ex_fan/on/set", 1);
+	if(rc != MOSQ_ERR_SUCCESS){
+		fprintf(stderr, "Error subscribing: %s\n", mosquitto_strerror(rc));
+		mosquitto_disconnect(mosq);
+	}
+
+	rc = mosquitto_subscribe(mosq, NULL, "gb_env_sense/update", 1);
 	if(rc != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error subscribing: %s\n", mosquitto_strerror(rc));
 		mosquitto_disconnect(mosq);

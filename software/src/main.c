@@ -57,7 +57,7 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 
 	int rc;
 	// fan state
-	if (strcmp(msg->topic, "bedroom_fan/on/set") == 0)
+	if (strcmp(msg->topic, "gb_ex_fan/on/set") == 0)
 	{
 		if (!strcmp((char *)msg->payload, "true"))
 		{
@@ -66,7 +66,7 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 			fan_CTRL(&fan_one);
 
 			char payload[] = "true";
-			rc = mosquitto_publish(mosq, NULL, "bedroom_fan/on/state", strlen(payload), payload, 2, false);
+			rc = mosquitto_publish(mosq, NULL, "gb_ex_fan/on/state", strlen(payload), payload, 2, false);
 			if(rc != MOSQ_ERR_SUCCESS) 
 				fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
 		}
@@ -77,20 +77,31 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 			fan_CTRL(&fan_one);
 
 			char payload[] = "false";
-			rc = mosquitto_publish(mosq, NULL, "bedroom_fan/on/state", strlen(payload), payload, 2, false);
+			rc = mosquitto_publish(mosq, NULL, "gb_ex_fan/on/state", strlen(payload), payload, 2, false);
 			if(rc != MOSQ_ERR_SUCCESS) 
 				fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
 		}
 	}
 	// fan speed
-	else if (strcmp(msg->topic, "bedroom_fan/speed/percentage") == 0)
+	else if (strcmp(msg->topic, "gb_ex_fan/speed/percentage") == 0)
 	{
 		printf("fan speed: %s\n", (char *)msg->payload);
 		fan_one.speed = atoi((char *)msg->payload);
 		fan_CTRL(&fan_one);
 
 		char *payload = (char *)msg->payload;
-		rc = mosquitto_publish(mosq, NULL, "bedroom_fan/speed/percentage_state", strlen(payload), payload, 2, false);
+		rc = mosquitto_publish(mosq, NULL, "gb_ex_fan/speed/percentage_state", strlen(payload), payload, 2, false);
+		if(rc != MOSQ_ERR_SUCCESS) 
+			fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
+	}
+	else if (strcmp(msg->topic, "gb_env_sense/update") == 0)
+	{
+		printf("gb_ex_temp/update\n");
+		read_temp_sense();
+
+		char payload[128];
+		sprintf(payload, "temp: %.1f, hum: %.0f", bme280_in.temperature, bme280_in.humidity);
+		rc = mosquitto_publish(mosq, NULL, "gb_env_sense/data", strlen(payload), payload, 2, false);
 		if(rc != MOSQ_ERR_SUCCESS) 
 			fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
 	}
