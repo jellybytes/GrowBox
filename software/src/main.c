@@ -48,7 +48,7 @@ int main()
 	mosquitto_loop_forever(mosq, -1, 1);
 
 	mosquitto_lib_cleanup();
-    return 0;
+	return 0;
 }
 
 void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
@@ -99,8 +99,15 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 		printf("gb_ex_temp/update\n");
 		read_temp_sense();
 
-		char payload[128];
-		sprintf(payload, "temp: %.1f, hum: %.0f", bme280_in.temperature, bme280_in.humidity);
+		cJSON *root = NULL;
+		char t_buf[8] = {0};
+		sprintf(t_buf, "%.1f", bme280_in.temperature);
+		const char *env_data[4] = {t_buf, t_buf, t_buf, t_buf};
+		root = cJSON_CreateStringArray(env_data,4);
+		// char *payload = NULL;
+		char *payload = cJSON_Print(root);
+		cJSON_Delete(root);
+
 		rc = mosquitto_publish(mosq, NULL, "gb_env_sense/data", strlen(payload), payload, 2, false);
 		if(rc != MOSQ_ERR_SUCCESS) 
 			fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
@@ -165,7 +172,7 @@ void print_OLED()
 	ssd1306_clearDisplay();
 
 	char print_buf[8] = {0};
-    sprintf(print_buf, "%.2f C", bme280_in.temperature);
+	sprintf(print_buf, "%.1f C", bme280_in.temperature);
 	ssd1306_drawString(print_buf);
 
 	char print_buf1[8] = {0};
@@ -198,10 +205,10 @@ int init_temp_sense()
 void read_temp_sense()
 {
     readBME280(&bme280_in);
-    printf("temperature: %.2f °C\n", bme280_in.temperature);
+    printf("temperature: %.1f °C\n", bme280_in.temperature);
     printf("humidity: %.0f %%\n", bme280_in.humidity);
 
     readBME280(&bme280_out);
-    printf("temperature: %.2f °C\n", bme280_out.temperature);
+    printf("temperature: %.1f °C\n", bme280_out.temperature);
     printf("humidity: %.0f %%\n", bme280_out.humidity);
 }

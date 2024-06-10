@@ -10,6 +10,7 @@
 #include "ssd1306_i2c.h"
 #include "bme280.h"
 #include "mqtt_utils.h"
+#include "cJSON.h"
 
 #define UNUSED(x) (void)(x)
 

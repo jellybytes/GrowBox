@@ -100,7 +100,7 @@ struct _BME280
   	bme280_raw_data raw;
   	float temperature;
   	float humidity;
-  	float pressure;
+  	// char *pressure;
 };
 typedef struct _BME280 BME280;
 

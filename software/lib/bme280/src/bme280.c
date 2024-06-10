@@ -24,8 +24,8 @@ void readBME280(BME280 *bme280)
 
   	int32_t t_fine = getTemperatureCalibration(&bme280->cal, bme280->raw.temperature);
   	bme280->temperature = compensateTemperature(t_fine); // C
-  	bme280->pressure = compensatePressure(bme280->raw.pressure, &bme280->cal, t_fine) / 100; // hPa
   	bme280->humidity = compensateHumidity(bme280->raw.humidity, &bme280->cal, t_fine);       // %
+  	// bme280->pressure = compensatePressure(bme280->raw.pressure, &bme280->cal, t_fine) / 100; // hPa
   	// float a = getAltitude(p);                         // meters
 }
 

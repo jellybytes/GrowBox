@@ -33,7 +33,13 @@ INC_LIB_THREE = $(wildcard $(LIB_THREE)/include/*.h)
 OBJ_LIB_THREE = $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(SRC_LIB_THREE)))
 CFLAGS += -I$(sort $(dir $(INC_LIB_THREE)))
 
-OBJECTS = $(OBJ) $(OBJ_LIB_ONE) $(OBJ_LIB_TWO) $(OBJ_LIB_THREE)
+LIB_FOUR = lib/cJSON
+SRC_LIB_FOUR = $(wildcard $(LIB_FOUR)/src/*.c)
+INC_LIB_FOUR = $(wildcard $(LIB_FOUR)/include/*.h)
+OBJ_LIB_FOUR = $(patsubst %.c, $(OBJ_DIR)/%.o, $(notdir $(SRC_LIB_FOUR)))
+CFLAGS += -I$(sort $(dir $(INC_LIB_FOUR)))
+
+OBJECTS = $(OBJ) $(OBJ_LIB_ONE) $(OBJ_LIB_TWO) $(OBJ_LIB_THREE) $(OBJ_LIB_FOUR)
 
 .PHONY: all clean objs
 
@@ -51,6 +57,9 @@ $(OBJ_LIB_TWO): $(SRC_LIB_TWO) $(INC_LIB_TWO) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_LIB_THREE): $(SRC_LIB_THREE) $(INC_LIB_THREE) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_LIB_FOUR): $(SRC_LIB_FOUR) $(INC_LIB_FOUR) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ): $(SRC) $(INC) | $(OBJ_DIR)
