@@ -30,6 +30,9 @@ Use BCM pins `12` and `13` -> wPi pins `GPIO26` and `GPIO23`
 SSD1306 based 128x64 pixel OLED screen. I2c address `0x3c`
 
 # Button / Light Control
-
 GPIO21 (wPi) -> BCM 5
 GPIO22 (wPi) -> BCM 6
+
+# Dependencies
+sudo apt install -y mosquitto-dev mosquitto-clients
+wiringPi..
