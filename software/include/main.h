@@ -1,16 +1,9 @@
 #ifndef H_MAIN
 #define H_MAIN
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include <stdbool.h>
+#include <stdint.h>
 #include <mosquitto.h>
-#include <wiringPi.h>
-
-#include "ssd1306_i2c.h"
-#include "bme280.h"
-#include "mqtt_utils.h"
-#include "cJSON.h"
 
 #define UNUSED(x) (void)(x)
 

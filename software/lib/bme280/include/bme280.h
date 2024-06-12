@@ -1,15 +1,7 @@
 #ifndef __BME280_H__
 #define __BME280_H__
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdint.h>
-
-#include <errno.h>
-#include <stdint.h>
-#include <time.h>
-#include <math.h>
-#include <wiringPiI2C.h>
 
 #define BME280_ADDRESS                0x76
 
@@ -98,13 +90,13 @@ struct _BME280
   	int fd;
   	bme280_calib_data cal;
   	bme280_raw_data raw;
-  	float temperature;
-  	float humidity;
+  	char temperature[8];
+  	char humidity[8];
   	// char *pressure;
 };
 typedef struct _BME280 BME280;
 
-int setupBME280(BME280 *bme280);
+void setupBME280(BME280 *bme280);
 void readBME280(BME280 *bme280);
 
 #endif

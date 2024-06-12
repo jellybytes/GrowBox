@@ -1,8 +1,12 @@
 #include "mqtt_utils.h"
-#include <string.h>
-#include <stdlib.h>
 #include "main.h"
-#include <mosquitto.h>
+
+#include <stdio.h>
+#include <stdlib.h>
+// #include <unistd.h>
+#include <string.h>
+
+
 
 void on_connect(struct mosquitto *mosq, void *obj, int reason_code);
 void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count, const int *granted_qos);
@@ -30,6 +34,15 @@ int init_mqtt(struct mosquitto *mosq)
 	}
 
 	return EXIT_SUCCESS;
+}
+
+void mqtt_publish(struct mosquitto *mosq, char *topic, char *payload)
+{
+	int rc = mosquitto_publish(mosq, NULL, topic, strlen(payload), payload, 2, false);
+	if(rc != MOSQ_ERR_SUCCESS) 
+	{
+		fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
+	}
 }
 
 void on_connect(struct mosquitto *mosq, void *obj, int reason_code)

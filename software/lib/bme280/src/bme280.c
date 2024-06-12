@@ -1,6 +1,17 @@
 
 #include "bme280.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <string.h>
+
+#include <errno.h>
+#include <math.h>
+
+#include <wiringPiI2C.h>
+
+
 void readCalibrationData(int fd, bme280_calib_data *cal);
 int32_t getTemperatureCalibration(bme280_calib_data *cal, int32_t adc_T);
 float compensateTemperature(int32_t t_fine);
@@ -9,24 +20,31 @@ float compensateHumidity(int32_t adc_H, bme280_calib_data *cal, int32_t t_fine);
 void getRawData(int fd, bme280_raw_data *raw);
 float getAltitude(float pressure);
 
-int setupBME280(BME280 *bme280)
+void setupBME280(BME280 *bme280)
 {
   	readCalibrationData(bme280->fd, &bme280->cal);
-
-  	wiringPiI2CWriteReg8(bme280->fd, 0xf2, 0x01);   // humidity oversampling x 1
-  	wiringPiI2CWriteReg8(bme280->fd, 0xf4, 0x25);   // pressure and temperature oversampling x 1, mode normal
-  	return 0;
 }
 
 void readBME280(BME280 *bme280)
 {
+	// trigger new conversion.. it seems?
+  	wiringPiI2CWriteReg8(bme280->fd, 0xf2, 0x01);   // humidity oversampling x 1
+  	wiringPiI2CWriteReg8(bme280->fd, 0xf4, 0x25);   // pressure and temperature oversampling x 1, mode normal
   	getRawData(bme280->fd, &bme280->raw);
 
   	int32_t t_fine = getTemperatureCalibration(&bme280->cal, bme280->raw.temperature);
-  	bme280->temperature = compensateTemperature(t_fine); // C
-  	bme280->humidity = compensateHumidity(bme280->raw.humidity, &bme280->cal, t_fine);       // %
+	float temp = compensateTemperature(t_fine);
+	// printf("temp: %.1f\n", temp);
+	memset(bme280->temperature, 0, 8*sizeof(char));
+	sprintf(bme280->temperature, "%.1f", temp);
+
+	float hum = compensateHumidity(bme280->raw.humidity, &bme280->cal, t_fine);
+	// printf("temp: %.0f\n", hum);
+	memset(bme280->humidity, 0, 8*sizeof(char));
+	sprintf(bme280->humidity, "%.0f", hum);
+
+  	// bme280->humidity = compensateHumidity(bme280->raw.humidity, &bme280->cal, t_fine);       // %
   	// bme280->pressure = compensatePressure(bme280->raw.pressure, &bme280->cal, t_fine) / 100; // hPa
-  	// float a = getAltitude(p);                         // meters
 }
 
 int32_t getTemperatureCalibration(bme280_calib_data *cal, int32_t adc_T) {
